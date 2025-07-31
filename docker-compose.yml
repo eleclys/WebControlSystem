@@ -1,0 +1,106 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaledb
+    environment:
+      POSTGRES_DB: metrics
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    #    volumes:
+    #      - ./timescale-data:/var/lib/postgresql/data   # 持久化存储
+    ports:
+      - "55432:5432"
+    restart: unless-stopped
+    networks:
+      - localnet
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - localnet
+
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    volumes:
+      - ./grafana-storage:/var/lib/grafana  # 持久化存储
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_DASHBOARDS_MIN_REFRESH_INTERVAL=1s  # 这是为了使得grafana的最短刷新频率能够为1s
+    restart: unless-stopped
+    networks:
+      - localnet
+
+
+  backend:
+    build: ./backend
+    container_name: flask-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - PG_HOST=timescaledb
+      - PG_DB=metrics
+      - PG_USER=admin
+      - PG_PASSWORD=admin123
+    depends_on:
+      - redis
+      - timescaledb
+    restart: unless-stopped
+    networks:
+      - localnet
+
+
+  controller:
+    build:
+      context: ./controller
+    container_name: controller
+    environment:
+      - REDIS_HOST=redis
+      - PG_HOST=timescaledb
+      - PG_DB=metrics
+      - PG_USER=admin
+      - PG_PASSWORD=admin123
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+    depends_on:
+      - redis
+      - timescaledb
+      - mqtt
+    restart: unless-stopped
+    networks:
+      - localnet
+
+  frontend:
+    build: ./frontend
+    container_name: react-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - localnet
+
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"   # MQTT 默认端口
+      - "9001:9001"   # MQTT WebSocket，如果需要可保留
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+    networks:
+      - localnet
+
+
+networks:
+  localnet:
+    driver: bridge
+    

@@ -1,0 +1,31 @@
+# node modules
+frontend/node_modules/
+
+# node build output
+frontend/build/
+
+# Grafana
+grafana-storage/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+
+# JetBrains
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# 环境变量等敏感文件
+.env
+.env.*
+
+# 系统文件
+.DS_Store
+Thumbs.db

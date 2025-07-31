@@ -1,0 +1,6 @@
+flask
+flask_cors
+flask-socketio
+redis
+psycopg2-binary
+eventlet
