@@ -1,8 +1,7 @@
 # controller/main.py
 """
 修改意见：
-1. 可以用Redis，但要使用publish-subscribe模式；
-2. 用C++重写，保证性能；
+可以尝试使用Redis的publish-subscribe模式；
 """
 import os
 import time
