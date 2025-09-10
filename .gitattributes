@@ -1,2 +1,33 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# 二进制文件
+*.doc  binary
+*.docx binary
+*.ppt  binary
+*.pptx binary
+*.xls  binary
+*.xlsx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.zip binary
+*.rar binary
+*.7z binary
+*.tar binary
+*.gz binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.bin binary
+*.iso binary
+*.img binary
+*.apk binary
+*.ipa binary
+*.aab binary
+*.war binary
+*.ear binary
