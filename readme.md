@@ -15,18 +15,17 @@
 整个系统由 5 大容器服务组成，使用 Docker Compose 管理：
 
 ```
-Docker Compose 项目
-├── frontend      (React + WebSocket 前端界面)
-├── backend       (Flask + WebSocket API 服务)
-├── controller    (控制器，执行闭环控制并写入 Redis + TimescaleDB)
-├── redis         (高速共享状态缓存)
-├── timescaledb   (温度历史数据持久化)
-└── grafana       (可视化，访问 localhost:3000)
+frontend      (React + WebSocket 前端界面)
+backend       (Flask + WebSocket API 服务)
+controller    (控制器，执行闭环控制并写入 Redis + TimescaleDB)
+redis         (高速共享状态缓存)
+timescaledb   (温度历史数据持久化)
+grafana       (可视化，访问 localhost:3000)
 ```
 
 
 
-## 技术栈总结
+## 技术栈
 
 | 模块       | 技术选型                 | 作用说明                         |
 | ---------- | ------------------------ | -------------------------------- |
@@ -44,21 +43,21 @@ Docker Compose 项目
 
 ```plaintext
  用户访问前端页面 http://<局域网IP>:80
-  └─> React 页面加载 REST 接口 (/api/temperature/setpoint) 获取当前目标温度
-  └─> 提交表单时 POST 新目标温度给 Flask 后端
-  └─> 同时通过 WebSocket 接收实时温度更新
+  	React 页面加载 REST 接口 (/api/temperature/setpoint) 获取当前目标温度
+  	提交表单时 POST 新目标温度给 Flask 后端
+  	同时通过 WebSocket 接收实时温度更新
 
  Flask Backend
-  ├─ REST API：处理设定值的 GET/POST 请求
-  └─ WebSocket：每秒通过 Redis 拉取当前温度并推送给前端
+ 	REST API：处理设定值的 GET/POST 请求
+  	WebSocket：每秒通过 Redis 拉取当前温度并推送给前端
 
  控制器（Controller）
-  └─ 从 Redis 中读取目标设定温度
-  └─ 执行简单 P 控制计算，生成 current_temp
-  └─ 将当前温度写入 Redis（供 Flask 拉取）、写入 TimescaleDB（供 Grafana 展示）
+ 	从 Redis 中读取目标设定温度
+ 	执行简单 P 控制计算，生成 current_temp
+ 	将当前温度写入 Redis（供 Flask 拉取）、写入 TimescaleDB（供 Grafana 展示）
 
  Grafana
-  └─ 查询 TimescaleDB，展示温度历史趋势图表（如1小时、24小时等）
+ 	查询 TimescaleDB，展示温度历史趋势图表（如1小时、24小时等）
 ```
 
 
@@ -159,15 +158,13 @@ yarn build
 
 ### Nginx
 
-**反向代理（Reverse Proxy）** 是 Nginx 的核心功能之一，它的作用类似于一个“中间人”，代表后端服务器处理客户端的请求。与正向代理不同，反向代理的重点是**隐藏和保护后端服务器**。
+**反向代理（Reverse Proxy）** 是 Nginx 的核心功能之一，代表后端服务器处理客户端的请求。与正向代理不同，反向代理的重点是**隐藏和保护后端服务器**。
 
 |              | **正向代理（Forward Proxy）** | **反向代理（Reverse Proxy）**       |
 | ------------ | ----------------------------- | ----------------------------------- |
 | **使用者**   | 客户端                        | 服务器                              |
 | **作用**     | 帮客户端隐藏身份              | 帮后端服务器隐藏身份（如负载均衡）  |
 | **典型场景** | 企业内网代理                  | Nginx 转发请求到 Flask/Node.js 后端 |
-
-正向代理就像通过中介租房，反向代理就像房东委托中介处理租客请求（租客不知道真实房东是谁）。
 
 在该系统中，反向代理是这样工作的：
 
